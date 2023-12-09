@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <concepts>
 #include <functional>
 #include <vector>
 
@@ -29,9 +30,9 @@ template <typename T> class LeftWrite {
   std::vector<std::function<void(T*)>> history{};
 
 public:
-  explicit LeftWrite(std::size_t Slack = 64) { history.reserve(Slack); }
+  explicit LeftWrite(std::size_t slack = 64) { history.reserve(slack); }
 
-  template <typename F> void Read(F&& fn) {
+  template <typename F> void Read(F&& fn) requires std::invocable<F, const T*> {
     auto curr = LoadAtomicPointer();
     curr.active->num_readers.fetch_add(1, std::memory_order_release);
     fn(&curr.active->half);
