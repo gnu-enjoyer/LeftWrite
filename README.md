@@ -1,6 +1,6 @@
 ## LeftWrite
 
-#### LeftWrite is a C++ templated, header-only wait-free concurrent data structure for multi-threaded single-writer, multiple-reader scenarios.
+#### LeftWrite is a C++20 templated, header-only wait-free concurrent data structure for multi-threaded single-writer, multiple-reader scenarios.
 
 ```cpp
 namespace {
@@ -18,8 +18,7 @@ auto LeftWrite = LW::LeftWrite<std::vector<std::string>>();
 
 [[noreturn]] auto writer() {
   for (;;) {
-    LeftWrite.Write([](auto* lw) { lw->emplace_back("Hello"); });
-    LeftWrite.Swap();
+    LeftWrite.Write([](auto* lw) { lw->emplace_back("Hello"); }).Swap();
   }
 }
 }

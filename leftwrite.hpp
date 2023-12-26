@@ -32,15 +32,19 @@ template <typename T> class LeftWrite {
 public:
   explicit LeftWrite(std::size_t slack = 64) { history.reserve(slack); }
 
-  template <typename F> void Read(F&& fn) requires std::invocable<F, const T*> {
+  template <typename F>
+  void Read(F&& fn)
+    requires std::invocable<F, const T*>
+  {
     auto curr = LoadAtomicPointer();
     curr.active->num_readers.fetch_add(1, std::memory_order_release);
     fn(&curr.active->half);
     curr.active->num_readers.fetch_sub(1, std::memory_order_release);
   }
 
-  template <typename F> void Write(F&& fn) {
+  template <typename F> [[nodiscard]] auto& Write(F&& fn) {
     history.emplace_back(std::forward<F>(fn));
+    return *this;
   }
 
   void Swap() {
